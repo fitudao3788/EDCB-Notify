@@ -3,6 +3,7 @@ import os.path
 import re
 import threading
 import time
+from collections import deque
 
 import dotenv
 import httpx
@@ -48,12 +49,12 @@ class EDCBRecInfoWatcher:
             f.seek(0, os.SEEK_END)
             f_size = f.tell()
             f.seek(max(0, f_size - 1024))
-            chunk = f.read()
-            next_id_matches = re.search(r';;NextID=(\d+)', chunk)
-            if next_id_matches:
-                return int(next_id_matches.group(1))
-            else:
-                return 0
+            chunk = deque(f, maxlen=5)
+            for line in chunk:
+                next_id_matches = re.search(r';;NextID=(\d+)', line)
+                if next_id_matches:
+                    return int(next_id_matches.group(1))
+            return 0
 
     def check_new_record(self) -> None:
         new_next_id = self.get_next_id()
