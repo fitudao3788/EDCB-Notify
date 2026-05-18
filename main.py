@@ -42,7 +42,7 @@ class EDCBRecInfoWatchHandler(FileSystemEventHandler):
         if not os.path.isfile(self.target_file):
             return 0
 
-        with open(self.target_file, encoding="shift_jis") as f:
+        with open(self.target_file, encoding="utf-8") as f:
             f.seek(0, os.SEEK_END)
             f_size = f.tell()
             f.seek(max(0, f_size - 1024))
@@ -63,7 +63,7 @@ class EDCBRecInfoWatchHandler(FileSystemEventHandler):
 
         logger.info(f"New next ID: {new_next_id}")
 
-        with open(self.target_file, encoding="shift_jis") as f:
+        with open(self.target_file, encoding="utf-8") as f:
             record_lines = f.readlines()
 
         for record_line in record_lines:
