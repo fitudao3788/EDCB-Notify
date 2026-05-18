@@ -1,16 +1,17 @@
 import datetime
 import os.path
 import re
-import threading
 import time
 from collections import deque
 
 import dotenv
 import httpx
 from loguru import logger
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 
-class EDCBRecInfoWatcher:
+class EDCBRecInfoWatchHandler(FileSystemEventHandler):
     def __init__(self, target_file: str, webhook_url: str = ""):
         self.stop_pending = False
         self.thread = None
@@ -54,9 +55,12 @@ class EDCBRecInfoWatcher:
                 return int(next_id_matches.group(1))
         return 0
 
-    def check_new_record(self) -> None:
-        new_next_id = self.get_next_id()
+    def on_modified(self, event) -> None:
+        # noinspection PyTypeChecker
+        if os.path.abspath(event.src_path) != self.target_file:
+            return
 
+        new_next_id = self.get_next_id()
         if new_next_id <= self.next_id:
             return
 
@@ -90,22 +94,6 @@ class EDCBRecInfoWatcher:
 
         self.next_id = new_next_id
 
-    def _start_internal(self):
-        while True:
-            if self.stop_pending:
-                break
-
-            self.check_new_record()
-            time.sleep(5)
-
-    def start(self) -> None:
-        self.thread = threading.Thread(target=self._start_internal)
-        self.thread.start()
-
-    def stop(self) -> None:
-        self.stop_pending = True
-        self.thread.join()
-
 
 def main():
     dotenv.load_dotenv()
@@ -119,14 +107,18 @@ def main():
 
     logger.info("Starting watcher...")
 
-    watcher = EDCBRecInfoWatcher(target_file=target_file, webhook_url=webhook_url)
-    watcher.start()
+    event_handler = EDCBRecInfoWatchHandler(target_file=target_file, webhook_url=webhook_url)
+    observer = Observer()
+    observer.schedule(event_handler, target_file, recursive=False)
+    observer.start()
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        watcher.stop()
+        observer.stop()
+
+    observer.join()
 
 
 if __name__ == "__main__":

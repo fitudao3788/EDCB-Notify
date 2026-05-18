@@ -6,4 +6,5 @@ dependencies = [
     "httpx>=0.28.1",
     "loguru>=0.7.3",
     "python-dotenv>=1.2.2",
+    "watchdog>=6.0.0",
 ]
