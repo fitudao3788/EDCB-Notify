@@ -85,7 +85,7 @@ class EDCBRecInfoWatcher:
             raw_program_started_at = record_data[3]
             raw_program_duration = record_data[4]
             channel_name = record_data[5]
-            record_drop = record_data[10]
+            record_drop = int(record_data[10])
             record_status = record_data[15]
 
             program_started_at = datetime.datetime.strptime(raw_program_date + " " + raw_program_started_at, "%Y/%m/%d %H:%M:%S")
