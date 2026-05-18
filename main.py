@@ -58,9 +58,10 @@ class EDCBRecInfoWatcher:
     def check_new_record(self) -> None:
         new_next_id = self.get_next_id()
 
-        logger.info(f"New next ID: {new_next_id}")
         if new_next_id <= self.next_id:
             return
+
+        logger.info(f"New next ID: {new_next_id}")
 
         with open(self.target_file, encoding="utf-8") as f:
             record_lines = f.readlines()
