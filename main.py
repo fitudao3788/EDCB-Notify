@@ -26,12 +26,20 @@ class EDCBRecInfoWatchHandler(FileSystemEventHandler):
         weeks = ["(月)", "(火)", "(水)", "(木)", "(金)", "(土)", "(日)"]
         week_str = weeks[int(program_started_at.weekday())]
 
+        if record_status == "録画終了" and record_drop == 0:
+            embed_color = 0x3498db
+        elif record_status == "録画終了" and record_drop != 0 or\
+             record_status in ["一部のみ録画が実行された可能性があります", "録画中に番組情報を確認できませんでした"]:
+            embed_color = 0xf1c40f
+        else:
+            embed_color = 0xe74c3c
+
         with httpx.Client() as client:
             payload = {
                 "embeds": [{
                     "title": program_title,
                     "description": program_started_at.strftime(f"%Y/%m/%d{week_str} %H:%M〜") + program_ended_at.strftime("%H:%M"),
-                    "color": 0x3498db,
+                    "color": embed_color,
                     "fields": [
                         {"name": "チャンネル", "value": channel_name, "inline": True},
                         {"name": "録画状態", "value": record_status, "inline": True},
