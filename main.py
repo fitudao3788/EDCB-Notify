@@ -110,7 +110,7 @@ class EDCBRecInfoWatcher:
 def main():
     dotenv.load_dotenv()
 
-    target_file = os.environ.get("EDCB_RECINFO_FILE")
+    target_file = os.environ.get("EDCB_RECINFO_PATH")
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
 
     if target_file is None or webhook_url is None:
