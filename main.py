@@ -21,7 +21,7 @@ class EDCBRecInfoWatcher:
 
         logger.info("Initial next id: {}".format(self.next_id))
 
-    def send_webhook(self, program_title: str, program_started_at: datetime.datetime, program_ended_at: datetime.datetime, channel_name: str, record_drop: str, record_status: str) -> None:
+    def send_webhook(self, program_title: str, program_started_at: datetime.datetime, program_ended_at: datetime.datetime, channel_name: str, record_drop: int, record_status: str) -> None:
         weeks = ["(月)", "(火)", "(水)", "(木)", "(金)", "(土)", "(日)"]
         week_str = weeks[int(program_started_at.weekday())]
 
