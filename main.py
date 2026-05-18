@@ -1,17 +1,19 @@
 import datetime
 import os.path
 import re
+import threading
 import time
 
 import dotenv
 import httpx
 from loguru import logger
-from watchdog.events import FileSystemEventHandler, DirModifiedEvent, FileModifiedEvent
-from watchdog.observers.polling import PollingObserver
 
 
-class EDCBRecInfoWatchHandler(FileSystemEventHandler):
+class EDCBRecInfoWatcher:
     def __init__(self, target_file: str, webhook_url: str = ""):
+        self.stop_pending = False
+        self.thread = None
+
         self.target_file = os.path.abspath(target_file)
         self.webhook_url = webhook_url
         self.next_id = self.get_next_id()
@@ -53,15 +55,12 @@ class EDCBRecInfoWatchHandler(FileSystemEventHandler):
             else:
                 return 0
 
-    def on_modified(self, event: DirModifiedEvent | FileModifiedEvent) -> None:
-        if os.path.abspath(event.src_path) != self.target_file:
-            return
-
+    def check_new_record(self) -> None:
         new_next_id = self.get_next_id()
-        if new_next_id <= self.next_id:
-            return
 
         logger.info(f"New next ID: {new_next_id}")
+        if new_next_id <= self.next_id:
+            return
 
         with open(self.target_file, encoding="utf-8") as f:
             record_lines = f.readlines()
@@ -91,6 +90,22 @@ class EDCBRecInfoWatchHandler(FileSystemEventHandler):
 
         self.next_id = new_next_id
 
+    def _start_internal(self):
+        while True:
+            if self.stop_pending:
+                break
+
+            self.check_new_record()
+            time.sleep(5)
+
+    def start(self) -> None:
+        self.thread = threading.Thread(target=self._start_internal)
+        self.thread.start()
+
+    def stop(self) -> None:
+        self.stop_pending = True
+        self.thread.join()
+
 
 def main():
     dotenv.load_dotenv()
@@ -104,16 +119,14 @@ def main():
 
     logger.info("Starting watcher...")
 
-    event_handler = EDCBRecInfoWatchHandler(target_file=target_file, webhook_url=webhook_url)
-    observer = PollingObserver()
-    observer.schedule(event_handler, path=target_file, recursive=False)
-    observer.start()
+    watcher = EDCBRecInfoWatcher(target_file=target_file, webhook_url=webhook_url)
+    watcher.start()
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        observer.stop()
+        watcher.stop()
 
 
 if __name__ == "__main__":
