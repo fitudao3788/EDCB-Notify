@@ -1,4 +1,4 @@
-# EDCBNotify
+# EDCB-Notify
 
 EDCB の録画情報を監視し、Discord Webhook経由で通知を送信するPythonアプリケーションです。
 
