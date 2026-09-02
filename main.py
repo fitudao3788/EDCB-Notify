@@ -44,7 +44,7 @@ class EDCBRecInfoWatcher:
                         {"name": "録画状態", "value": record_status, "inline": True},
                         {"name": "ドロップ", "value": record_drop, "inline": True},
                     ],
-                    "footer": {"text": "EDCBNotify"},
+                    "footer": {"text": "EDCB-Notify"},
                 }],
             }
             client.post(self.webhook_url, json=payload)
