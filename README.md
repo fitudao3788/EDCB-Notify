@@ -1,6 +1,6 @@
 # EDCBNotify
 
-EDCB (Earth Soft Dekowaku Channel Broadcast) の録画情報を監視し、Discord Webhook経由で通知を送信するPythonアプリケーションです。
+EDCB の録画情報を監視し、Discord Webhook経由で通知を送信するPythonアプリケーションです。
 
 ## 概要
 
@@ -84,7 +84,7 @@ docker run -d \
 
 | 変数名 | 説明 | 例 |
 |--------|------|-----|
-| `EDCB_RECINFO_PATH` | EDCB の RecInfo.txt ���ァイルパス | `/EDCB/Setting/RecInfo.txt` |
+| `EDCB_RECINFO_PATH` | EDCB の RecInfo.txt ファイルパス | `/EDCB/Setting/RecInfo.txt` |
 | `DISCORD_WEBHOOK_URL` | Discord Webhook URL | `https://discord.com/api/webhooks/...` |
 
 ## 設定例
