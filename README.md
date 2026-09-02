@@ -1,1 +1,1 @@
-# EDCBNotify
+# EDCB-Notify
